@@ -1,9 +1,21 @@
+/*
+
+TODO : Add a saving function and deletion function for polish.
+
+*/
+
+
+
+
 using System;
 using SkiaSharp;
 using System.IO;
 using System.Drawing;
+using Newtonsoft.Json;
+using System.Collections;
+using System.Collections.Generic;
+using Newtonsoft.Json.Linq;
 using System.Windows.Forms;
-using System.ComponentModel;
 
 namespace _2020_07_26_Console_Grapher
 {
@@ -22,9 +34,8 @@ namespace _2020_07_26_Console_Grapher
         private SKPath graph;
         private SKPoint[] points;
 
-        public grapher(/*string function*/)
+        public grapher()
         {
-            //this.function = function;
             this.Size = new Size(500, 500);
             this.StartPosition = FormStartPosition.CenterScreen;
             this.MaximumSize = new Size(500, 500);
@@ -44,9 +55,10 @@ namespace _2020_07_26_Console_Grapher
                 paint.StrokeWidth = 1;
                 paint.Style = SKPaintStyle.Stroke;
 
-                points = get_points(-1 * width, height);
+                //points = get_points(-198, height);
                 graph = new SKPath();
-                graph.AddPoly(points);
+                points = coordinates();
+                graph.AddPoly(points, false);
 
                 canvas.DrawPath(graph,paint);
 
@@ -78,12 +90,11 @@ namespace _2020_07_26_Console_Grapher
 
             for(int i = 0; i < coordinates.Length; i++)
             {
-                coordinates[i] = new SKPoint(x, /*function*/-(float)(5 * Math.Pow(x, 2) + 4)); //TODO: take the string function, which is a long string holding the points, and decode that string in points the drawing function can use.
+                coordinates[i] = new SKPoint(x,-(float)(5 * Math.Sin(x) + 4));
                 x++;
             }
             return fit_to_graph(coordinates);
         }
-
         public SKPoint[] fit_to_graph(SKPoint[] coordinates)
         {
             SKPoint[] translated_coordinates = new SKPoint[coordinates.Length];
@@ -110,10 +121,36 @@ namespace _2020_07_26_Console_Grapher
             return translated_coordinates;
         }
 
-        public int[] function_to_y_coordinates(string function)
+        public SKPoint[] coordinates()
         {
-            int[] y_coordinates = new int[(int)(Math.Sqrt(Math.Pow(-1*width-height, 2)))];
-            return y_coordinates;
+            string current_directory = Directory.GetCurrentDirectory() + "\\";
+            string target_file = @"data.json";
+            string data = File.ReadAllText(target_file);
+            
+            IDictionary values = JsonConvert.DeserializeObject<IDictionary>(data);
+            JArray casting_numbers = new JArray(values["y_coordinates"]);
+
+            float x_intercept_one = (float)-500;
+            float x_intercept_two = (float)500;
+
+            int length_of_coordinate_array = (int)(Math.Sqrt(Math.Pow(x_intercept_two-x_intercept_one, 2)));
+
+            if (length_of_coordinate_array%2 != 0)
+            {
+                length_of_coordinate_array++;
+            }
+
+            float x = x_intercept_one;
+            SKPoint[] coordinates = new SKPoint[length_of_coordinate_array];
+            List<float[]> numbers = casting_numbers.ToObject<List<float[]>>();
+            //graph.MoveTo((float)numbers[0].GetValue(numbers[0].GetLength(0) - 1) - 1, (float)numbers[0].GetValue(numbers[0].GetLength(0) - 1));
+
+            for(int i = 0; i < coordinates.Length - 2; i++)
+            {
+                coordinates[i] = new SKPoint(x, (float)numbers[0].GetValue(i));
+                x++;
+            }
+            return fit_to_graph(coordinates);
         }
     }
 }
