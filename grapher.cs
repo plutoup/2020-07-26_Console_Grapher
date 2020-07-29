@@ -147,7 +147,7 @@ namespace _2020_07_26_Console_Grapher
 
             for(int i = 0; i < coordinates.Length - 2; i++)
             {
-                coordinates[i] = new SKPoint(x, (float)numbers[0].GetValue(i));
+                coordinates[i] = new SKPoint(x, -1 * (float)numbers[0].GetValue(i));
                 x++;
             }
             return fit_to_graph(coordinates);
