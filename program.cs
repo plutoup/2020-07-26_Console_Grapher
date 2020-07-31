@@ -11,7 +11,15 @@ namespace _2020_07_26_Console_Grapher
         static void Main(string[] args)
         {
             Application.EnableVisualStyles();
-            Application.Run(new grapher(/*args[0]*/));
+            string type = String.Empty;
+            if(args.Length > 0)
+            {
+                Application.Run(new grapher(args[0]));
+            }
+            else
+            {
+                Application.Run(new grapher());
+            }
         }
     }
 }

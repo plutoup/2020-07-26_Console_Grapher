@@ -1,21 +1,27 @@
 import json
 import math
     
-def main():    
-    data = {}
-    data['y_coordinates'] = []
-    #length = int(math.sqrt(math.pow(500-(-500), 2)))
-    for x in range(-500, 500):
-        y = math.pow(x, 2)
-        data['y_coordinates'].append(f'{y}')
-    
-    with open('data.json', 'w') as outfile:
-        json.dump(data, outfile)
-    
-    with open('data.json') as json_file:
-        data = json.load(json_file)
-        for floats in data['y_coordinates']:
-            print(floats)
+def main():
+    try:   
+        data = {}
+        data['y_coordinates'] = []
+        for x in range(-500, 500):
+            y = math.pow(x, 2)
+            if not type(y) is float:
+                raise Exception("Improper input : Usage -> graph \"<function>\"\n\tExample : graph \"math.pow(x,2)\"")
+            data['y_coordinates'].append(f'{y}')
+
+        with open('data.json', 'w') as outfile:
+            json.dump(data, outfile)
+
+        with open('data.json') as json_file:
+            data = json.load(json_file)
+            for floats in data['y_coordinates']:
+                print(floats)
+    except NameError:
+        print("Improper input : Usage -> graph \"<function>\"\n\tEXample : graph \"math.pow(x,2)\"")
 
 if __name__ == "__main__":
     main()
+
+    functioning
