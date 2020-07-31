@@ -5,8 +5,6 @@ TODO : Add a saving function and deletion function for polish.
 */
 
 
-
-
 using System;
 using SkiaSharp;
 using System.IO;
@@ -26,12 +24,14 @@ namespace _2020_07_26_Console_Grapher
         private SKImageInfo image_info;
         private SKSurface surface;
         private SKCanvas canvas;
-        private SKPaint paint;
+        private SKPaint graph_paint;
+        private SKPaint coordinates_lines_paint;
         private SKImage image;
         private SKData data;
         private MemoryStream memory_stream;
         private Bitmap bitmap;
         private SKPath graph;
+        private SKPath coordinates_lines;
         private SKPoint[] points;
 
         public grapher()
@@ -49,18 +49,27 @@ namespace _2020_07_26_Console_Grapher
                 canvas = surface.Canvas;
                 canvas.Clear(SKColors.White);
 
-                paint = new SKPaint();
-                paint.Color = SKColors.Black;
-                paint.IsAntialias = true;
-                paint.StrokeWidth = 1;
-                paint.Style = SKPaintStyle.Stroke;
+                coordinates_lines_paint = new SKPaint();
+                coordinates_lines_paint.Color = SKColor.Parse("#d55e00");
+                coordinates_lines_paint.IsAntialias = true;
+                coordinates_lines_paint.StrokeWidth = 1;
+                coordinates_lines_paint.Style = SKPaintStyle.Stroke;
+
+                graph_paint = new SKPaint();
+                graph_paint.Color = SKColors.Black;
+                graph_paint.IsAntialias = true;
+                graph_paint.StrokeWidth = 1;
+                graph_paint.Style = SKPaintStyle.Stroke;
 
                 //points = get_points(-198, height);
+                coordinates_lines = new SKPath();
                 graph = new SKPath();
                 points = coordinates();
-                graph.AddPoly(points, false);
-
-                canvas.DrawPath(graph,paint);
+                graph_coordinates_lines();
+                graph_lines(points);
+                
+                canvas.DrawPath(coordinates_lines,coordinates_lines_paint);
+                canvas.DrawPath(graph,graph_paint);
 
                 image = surface.Snapshot();
                 data = image.Encode(SKEncodedImageFormat.Png, 500);
@@ -143,14 +152,32 @@ namespace _2020_07_26_Console_Grapher
             float x = x_intercept_one;
             SKPoint[] coordinates = new SKPoint[length_of_coordinate_array];
             List<float[]> numbers = casting_numbers.ToObject<List<float[]>>();
-            //graph.MoveTo((float)numbers[0].GetValue(numbers[0].GetLength(0) - 1) - 1, (float)numbers[0].GetValue(numbers[0].GetLength(0) - 1));
 
-            for(int i = 0; i < coordinates.Length - 2; i++)
+            for(int i = 0; i < coordinates.GetLength(0); i++)
             {
-                coordinates[i] = new SKPoint(x, -1 * (float)numbers[0].GetValue(i));
-                x++;
+                    coordinates[i] = new SKPoint(x, -1 * (float)numbers[0].GetValue(i));
+                    x++;
             }
             return fit_to_graph(coordinates);
+        }
+
+        public void graph_lines(SKPoint[] points)
+        {
+            graph.MoveTo(points[0]);
+            for(int i = 1; i < points.GetLength(0); i++)
+            {
+                graph.LineTo(points[i]);
+            }
+        }
+
+        public void graph_coordinates_lines()
+        {   
+            coordinates_lines.MoveTo(new SKPoint(0,width/2));
+            coordinates_lines.LineTo(new SKPoint(width,(int)height/2));
+            coordinates_lines.Close();
+            coordinates_lines.MoveTo(new SKPoint(width/2,0));
+            coordinates_lines.LineTo(new SKPoint((int)width/2,height));
+            coordinates_lines.Close();
         }
     }
 }
